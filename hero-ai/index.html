@@ -26,8 +26,10 @@ body{font-family:var(--font);color:var(--carbon);-webkit-font-smoothing:antialia
 
 /* Escenario fijo de 1600x900 que se escala para caber siempre en la pantalla */
 #stage{position:fixed;left:50%;top:50%;width:1600px;height:900px;transform-origin:0 0;overflow:hidden;background:#000}
-#deck{display:flex;width:12800px;height:900px;transition:transform 1s cubic-bezier(.77,0,.18,1)}
-section{position:relative;width:1600px;height:900px;flex:none;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:80px 100px 90px}
+#deck{position:relative;width:1600px;height:900px;background:#000}
+/* Transicion: la diapositiva saliente se funde a negro y la nueva aparece desde el negro */
+section{position:absolute;left:0;top:0;width:1600px;height:900px;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:80px 100px 90px;opacity:0;visibility:hidden;transition:opacity .45s ease,visibility 0s linear .45s}
+section.act{opacity:1;visibility:visible;transition:opacity .6s ease .45s,visibility 0s}
 #giro{display:none}
 @media (orientation:portrait) and (max-width:700px){
   #giro{position:fixed;inset:0;z-index:99;background:#000;color:#f5f5f7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;font-size:20px;font-weight:600;text-align:center;padding:30px}
@@ -417,10 +419,12 @@ section.in .t{opacity:1;transform:none}
   function ir(n){
     n=Math.max(0,Math.min(secs.length-1,n));
     cur=n;
-    deck.style.transform="translateX("+(-n*W)+"px)";
     pts.forEach(function(p,k){p.classList.toggle("on",k===n)});
-    secs.forEach(function(s,k){if(k!==n)setTimeout(function(){if(cur!==k)s.classList.remove("in")},1100)});
-    setTimeout(function(){secs[n].classList.add("in")},350);
+    secs.forEach(function(s,k){
+      s.classList.toggle("act",k===n);
+      if(k!==n)setTimeout(function(){if(cur!==k)s.classList.remove("in")},500);
+    });
+    setTimeout(function(){if(cur===n)secs[n].classList.add("in")},500);
     if(location.hash!=="#"+(n+1))history.replaceState(null,"","#"+(n+1));
   }
   document.addEventListener("keydown",function(e){
